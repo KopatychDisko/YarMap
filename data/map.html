@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightbox2@2.11.3/dist/css/lightbox.min.css">
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_b0753a55bafb92d06077c7ac1c8c518f {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+    <script src="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.66.2/L.Control.Locate.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.66.2/L.Control.Locate.min.css"/>
+</head>
+<body>
+    
+    <script src="https://cdn.jsdelivr.net/npm/lightbox2@2.11.3/dist/js/lightbox.min.js"></script>
+    
+            <div class="folium-map" id="map_b0753a55bafb92d06077c7ac1c8c518f" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_b0753a55bafb92d06077c7ac1c8c518f = L.map(
+                "map_b0753a55bafb92d06077c7ac1c8c518f",
+                {
+                    center: [57.6261, 39.8845],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 12,
+  "zoomControl": true,
+  "preferCanvas": false,
+  "attributionControl": 0,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_db024e57f26b52ef128ee2dbef35d558 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_db024e57f26b52ef128ee2dbef35d558.addTo(map_b0753a55bafb92d06077c7ac1c8c518f);
+        
+    
+            L.control.fullscreen(
+                {
+  "position": "topright",
+  "title": "Expand me",
+  "titleCancel": "Exit me",
+  "forceSeparateButton": true,
+}
+            ).addTo(map_b0753a55bafb92d06077c7ac1c8c518f);
+        
+    
+            var tile_layer_c2fd254bb7c4c2d4c8beff91fe4612fc = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {"attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors", "detect_retina": false, "max_native_zoom": 19, "max_zoom": 19, "min_zoom": 0, "no_wrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+            );
+            var mini_map_a02e57fe5d8bcc91d1dbeb033f413639 = new L.Control.MiniMap(
+                tile_layer_c2fd254bb7c4c2d4c8beff91fe4612fc,
+                {
+  "position": "bottomright",
+  "width": 150,
+  "height": 150,
+  "collapsedWidth": 25,
+  "collapsedHeight": 25,
+  "zoomLevelOffset": -5,
+  "centerFixed": false,
+  "zoomAnimation": false,
+  "toggleDisplay": false,
+  "autoToggleDisplay": false,
+  "minimized": false,
+}
+            );
+            map_b0753a55bafb92d06077c7ac1c8c518f.addControl(mini_map_a02e57fe5d8bcc91d1dbeb033f413639);
+        
+    
+            var locate_control_d0133b85117be62759671422836aa0c7 = L.control.locate(
+                {}
+            ).addTo(map_b0753a55bafb92d06077c7ac1c8c518f);
+            
+                locate_control_d0133b85117be62759671422836aa0c7.start();
+            
+        
+    
+        function customFlyToBounds() {
+            let bounds = L.latLngBounds([]);
+            map_b0753a55bafb92d06077c7ac1c8c518f.eachLayer(function(layer) {
+                if (typeof layer.getBounds === 'function') {
+                    bounds.extend(layer.getBounds());
+                }
+            });
+            if (bounds.isValid()) {
+                map_b0753a55bafb92d06077c7ac1c8c518f.fitBounds(bounds, {
+  "padding": [0, 0],
+});
+            }
+        }
+        map_b0753a55bafb92d06077c7ac1c8c518f.on('overlayadd', customFlyToBounds);
+        customFlyToBounds();
+        
+    
+            var layer_control_3cfcd705176191c9c9d3ce8477154be7_layers = {
+                base_layers : {
+                    "openstreetmap" : tile_layer_db024e57f26b52ef128ee2dbef35d558,
+                },
+                overlays :  {
+                },
+            };
+            let layer_control_3cfcd705176191c9c9d3ce8477154be7 = L.control.layers(
+                layer_control_3cfcd705176191c9c9d3ce8477154be7_layers.base_layers,
+                layer_control_3cfcd705176191c9c9d3ce8477154be7_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_b0753a55bafb92d06077c7ac1c8c518f);
+
+        
+    
+            var polygon_34a1b54633590bdc6be4f338f1b94521 = L.polygon(
+                [[[57.62, 39.87], [57.62, 39.88], [57.63, 39.88], [57.63, 39.87], [57.62, 39.87]]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.5, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 6}
+            ).addTo(map_b0753a55bafb92d06077c7ac1c8c518f);
+        
+    
+        var popup_8bc6ec292fd68d31ac14b0a5c1dc2c19 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_36615850131503c512945a4765698f6b = $(`<div id="html_36615850131503c512945a4765698f6b" style="width: 100.0%; height: 100.0%;">Кировский район</div>`)[0];
+                popup_8bc6ec292fd68d31ac14b0a5c1dc2c19.setContent(html_36615850131503c512945a4765698f6b);
+            
+        
+
+        polygon_34a1b54633590bdc6be4f338f1b94521.bindPopup(popup_8bc6ec292fd68d31ac14b0a5c1dc2c19)
+        ;
+
+        
+    
+    
+            polygon_34a1b54633590bdc6be4f338f1b94521.bindTooltip(
+                `<div>
+                     Кировский район
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var polygon_dda974cdf0ffe1e95e726ba86dc8f111 = L.polygon(
+                [[[57.62, 39.88], [57.62, 39.89], [57.63, 39.89], [57.63, 39.88], [57.62, 39.88]]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.5, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 6}
+            ).addTo(map_b0753a55bafb92d06077c7ac1c8c518f);
+        
+    
+        var popup_fc11e35c58aaa4d601c23a901b7242a6 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_9e79fccb25b1431746d5e331b30ed99a = $(`<div id="html_9e79fccb25b1431746d5e331b30ed99a" style="width: 100.0%; height: 100.0%;">Ленинский район</div>`)[0];
+                popup_fc11e35c58aaa4d601c23a901b7242a6.setContent(html_9e79fccb25b1431746d5e331b30ed99a);
+            
+        
+
+        polygon_dda974cdf0ffe1e95e726ba86dc8f111.bindPopup(popup_fc11e35c58aaa4d601c23a901b7242a6)
+        ;
+
+        
+    
+    
+            polygon_dda974cdf0ffe1e95e726ba86dc8f111.bindTooltip(
+                `<div>
+                     Ленинский район
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var polygon_2c9922d4e3743c55193f076d7c0f384c = L.polygon(
+                [[[57.62, 39.89], [57.62, 39.9], [57.63, 39.9], [57.63, 39.89], [57.62, 39.89]]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.5, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 6}
+            ).addTo(map_b0753a55bafb92d06077c7ac1c8c518f);
+        
+    
+        var popup_ee34cfcdc2758595965d2da710392326 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_1f5888963d66fd1e3f96946dd98f5820 = $(`<div id="html_1f5888963d66fd1e3f96946dd98f5820" style="width: 100.0%; height: 100.0%;">Заволжский район</div>`)[0];
+                popup_ee34cfcdc2758595965d2da710392326.setContent(html_1f5888963d66fd1e3f96946dd98f5820);
+            
+        
+
+        polygon_2c9922d4e3743c55193f076d7c0f384c.bindPopup(popup_ee34cfcdc2758595965d2da710392326)
+        ;
+
+        
+    
+    
+            polygon_2c9922d4e3743c55193f076d7c0f384c.bindTooltip(
+                `<div>
+                     Заволжский район
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var polygon_109228c03c95895678dd18627221d515 = L.polygon(
+                [[[57.61, 39.87], [57.61, 39.88], [57.62, 39.88], [57.62, 39.87], [57.61, 39.87]]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.5, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 6}
+            ).addTo(map_b0753a55bafb92d06077c7ac1c8c518f);
+        
+    
+        var popup_45d391a6d0d788fa3c2bba93624d39ef = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_59b6f1dd82383779a4338d9605ba3a08 = $(`<div id="html_59b6f1dd82383779a4338d9605ba3a08" style="width: 100.0%; height: 100.0%;">Красноперекопский район</div>`)[0];
+                popup_45d391a6d0d788fa3c2bba93624d39ef.setContent(html_59b6f1dd82383779a4338d9605ba3a08);
+            
+        
+
+        polygon_109228c03c95895678dd18627221d515.bindPopup(popup_45d391a6d0d788fa3c2bba93624d39ef)
+        ;
+
+        
+    
+    
+            polygon_109228c03c95895678dd18627221d515.bindTooltip(
+                `<div>
+                     Красноперекопский район
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var polygon_e36db9bd2227e0f02e8fdb04f0a55cc1 = L.polygon(
+                [[[57.61, 39.88], [57.61, 39.89], [57.62, 39.89], [57.62, 39.88], [57.61, 39.88]]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.5, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 6}
+            ).addTo(map_b0753a55bafb92d06077c7ac1c8c518f);
+        
+    
+        var popup_6bda3c82fdd7916297685ca257781b78 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_1287aae724efd2792db38b99462a19ed = $(`<div id="html_1287aae724efd2792db38b99462a19ed" style="width: 100.0%; height: 100.0%;">Фрунзенский район</div>`)[0];
+                popup_6bda3c82fdd7916297685ca257781b78.setContent(html_1287aae724efd2792db38b99462a19ed);
+            
+        
+
+        polygon_e36db9bd2227e0f02e8fdb04f0a55cc1.bindPopup(popup_6bda3c82fdd7916297685ca257781b78)
+        ;
+
+        
+    
+    
+            polygon_e36db9bd2227e0f02e8fdb04f0a55cc1.bindTooltip(
+                `<div>
+                     Фрунзенский район
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var polygon_0b340fb9f47e1fac0809ddde413e97ff = L.polygon(
+                [[[57.61, 39.89], [57.61, 39.9], [57.62, 39.9], [57.62, 39.89], [57.61, 39.89]]],
+                {"bubblingMouseEvents": true, "color": "blue", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.5, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 1.0, "smoothFactor": 1.0, "stroke": true, "weight": 6}
+            ).addTo(map_b0753a55bafb92d06077c7ac1c8c518f);
+        
+    
+        var popup_5c58d7c68cec6fc111ad7d312f1227f9 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_4b8a0843215c246511cfc99ccc3f5886 = $(`<div id="html_4b8a0843215c246511cfc99ccc3f5886" style="width: 100.0%; height: 100.0%;">Дзержинский район</div>`)[0];
+                popup_5c58d7c68cec6fc111ad7d312f1227f9.setContent(html_4b8a0843215c246511cfc99ccc3f5886);
+            
+        
+
+        polygon_0b340fb9f47e1fac0809ddde413e97ff.bindPopup(popup_5c58d7c68cec6fc111ad7d312f1227f9)
+        ;
+
+        
+    
+    
+            polygon_0b340fb9f47e1fac0809ddde413e97ff.bindTooltip(
+                `<div>
+                     Дзержинский район
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+</script>
+</html>
