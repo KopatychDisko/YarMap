@@ -1,4 +1,6 @@
 '''fad'''
+from collections import defaultdict
+
 import os
 import asyncio
 import requests
@@ -12,14 +14,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.enums import ContentType
 from aiogram import types
 
-from collections import defaultdict
-
 from filter import ChatTypeFilter
 from state import Markers
 
 from map.map_creator import map_to_html
-
-from collections import defaultdict
 
 album_buffer = defaultdict(list)
 album_processing_locks = {}
@@ -32,6 +30,16 @@ router_marker.message.filter(
 
 # Буфер для альбомов (media groups)
 album_buffer = defaultdict(list)
+
+
+def delete_files_in_dir(path):
+    '''Del all file'''
+    for filename in os.listdir(path):
+        file_path = os.path.join(path, filename)
+        
+        # Проверяем, является ли путь файлом (не папкой)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
 
 
 # 📁 Функция сохранения
@@ -213,7 +221,7 @@ async def handle_album(message: Message, bot: Bot, state: FSMContext):
     count = await save_album_photos(messages, folder_name, bot)
     await message.answer("Фото загружены, подождите немного, я добавлю все Ваши данные на карту")
 
-    links = await upload_all_images_from_folder(
+    await upload_all_images_from_folder(
         f'../image/{folder_name}',
         repo_name='for_image',
         folder_in_repo=f'image/{folder_name}'
@@ -227,14 +235,16 @@ async def handle_album(message: Message, bot: Bot, state: FSMContext):
     df = pd.read_json('../data/markers.json')
     df = pd.concat([df, pd.DataFrame([data])], ignore_index=True)
     df.to_json('../data/markers.json', orient='records', indent=4, force_ascii=False)
-    
+
     await message.answer('Создаю карту с твоими данными....')
-    
+
     map_to_html('../data/yar_districts.json', '../data/markers.json', '../data/map.html')
-    
+
     await message.reply_sticker('CAACAgIAAxkBAAKVRmf0zOU0lat_UAIqZfAiK0g31glYAALJbQACxKNIS6T3gguKQd5tNgQ')
-    
+
     file = types.FSInputFile('../data/map.html')
     await message.answer_document(file, caption='Вот ваша карта 📄')
 
-    await state.set_state(Markers.end)
+    delete_files_in_dir('../image/')
+
+    await state.clear()
