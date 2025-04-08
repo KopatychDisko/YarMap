@@ -33,10 +33,10 @@ album_buffer = defaultdict(list)
 
 
 def delete_files_in_dir(path):
-    '''Del all file'''
+    '''Del all files in dir'''
     for filename in os.listdir(path):
         file_path = os.path.join(path, filename)
-        
+ 
         # Проверяем, является ли путь файлом (не папкой)
         if os.path.isfile(file_path):
             os.remove(file_path)
@@ -144,8 +144,7 @@ async def name_markers(msg: Message, state: FSMContext):
 
         # Проверяем, есть ли такие же координаты в DataFrame
         if any(tuple(p) == point for p in df['point']):
-            await msg.answer('К сожалению, объект с такими координатами уже существует =(')
-            await state.clear()
+            await msg.answer('К сожалению, объект с такими координатами уже существует =(. Если у тебя больше нет объектов жми /cancel')
             return
 
         await state.set_data({'point': point})
@@ -227,7 +226,7 @@ async def handle_album(message: Message, bot: Bot, state: FSMContext):
         folder_in_repo=f'image/{folder_name}'
     )
 
-    await asyncio.sleep(10)
+    await asyncio.sleep(5)
 
     data['photo'] = count
 
@@ -245,6 +244,6 @@ async def handle_album(message: Message, bot: Bot, state: FSMContext):
     file = types.FSInputFile('../data/map.html')
     await message.answer_document(file, caption='Вот ваша карта 📄')
 
-    delete_files_in_dir('../image/')
+    delete_files_in_dir('../image')
 
     await state.clear()
