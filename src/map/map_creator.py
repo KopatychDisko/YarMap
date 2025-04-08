@@ -5,6 +5,8 @@ import pandas as pd
 
 from folium.plugins import MiniMap, LocateControl, Fullscreen
 
+from map.markers import add_markers_to_map
+
 
 def create_map():
     '''Create map with some function'''
@@ -51,13 +53,14 @@ def add_districts(json_path, map_obj):
         ).add_to(map_obj)
         
 
-def map_to_html(json_path, file_to_save):
+def map_to_html(path_district, path_markers, file_to_save):
     '''Do all'''
     yar_map = create_map()
-    add_districts(json_path, yar_map)
+    add_districts(path_district, yar_map)
+    add_markers_to_map(yar_map, path_markers)
 
     yar_map.save(file_to_save)
 
 
 if __name__ == '__main__':
-    map_to_html('../../data/yar_districts.json', '../../data/map.html')
+    map_to_html('../../data/yar_districts.json', '../../data/markers.json', '../../data/map.html')

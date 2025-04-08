@@ -10,10 +10,19 @@ from aiogram import Bot, Router, F
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ContentType
+from aiogram import types
+
 from collections import defaultdict
 
 from filter import ChatTypeFilter
 from state import Markers
+
+from map.map_creator import map_to_html
+
+from collections import defaultdict
+
+album_buffer = defaultdict(list)
+album_processing_locks = {}
 
 router_marker = Router()
 
@@ -102,36 +111,43 @@ async def upload_all_images_from_folder(folder_path, folder_in_repo="uploads", r
 @router_marker.message(F.text.lower() == 'метки')
 async def start_markers(msg: Message, state: FSMContext):
     '''fad'''
-    await msg.answer('Введи координаты объекта: (скопируй с яндекс карт)')
+    await msg.answer('Введи координаты объекта: (скопируй с яндекс карт)', reply_markup=types.ReplyKeyboardRemove())
     
     await state.set_state(Markers.point)
 
     
 @router_marker.message(Markers.point)
 async def name_markers(msg: Message, state: FSMContext):
-    '''fad'''
-    temp = msg.text.split(', ')
-    point = tuple(map(float, temp))
-    
-    df = pd.read_json('../data/markers.json')
-    
-    if len(point) != 2:
-        await msg.answer('Неправильный формат координат. Должен быть : 53.234, 23.67')
-        
-        return
-    
-    if point in df.index:
-        await msg.answer('К сожалению, объект с такими координатми уже существует =(')
-        
-        await state.clear()
-        
-        return
-    await state.set_data({'point': point})
-    
-    await msg.answer('Напишите название объекта:')
-    
-    await state.set_state(Markers.name) 
-    
+    '''Получение координат объекта'''
+    try:
+        temp = msg.text.split(', ')
+        point = tuple(map(float, temp))
+
+        if len(point) != 2:
+            await msg.answer('Неправильный формат координат. Должен быть: 53.234, 23.67')
+            return
+
+        df = pd.read_json('../data/markers.json')
+
+        # Проверяем, что все элементы в 'point' имеют длину 2
+        if any(len(p) != 2 for p in df['point']):
+            await msg.answer('Некорректные данные в базе координат. Проверьте формат.')
+            return
+
+        # Проверяем, есть ли такие же координаты в DataFrame
+        if any(tuple(p) == point for p in df['point']):
+            await msg.answer('К сожалению, объект с такими координатами уже существует =(')
+            await state.clear()
+            return
+
+        await state.set_data({'point': point})
+        await msg.answer('Напишите название объекта:')
+        await state.set_state(Markers.name)
+
+    except ValueError:
+        await msg.answer('Ошибка в формате координат. Убедитесь, что числа разделены запятой.')
+
+
 @router_marker.message(Markers.name)
 async def name(msg: Message, state: FSMContext):
     await state.update_data({'name': msg.text})
@@ -162,27 +178,63 @@ async def describe(msg: Message, state: FSMContext):
 @router_marker.message(Markers.stars)
 async def stars(msg: Message, state: FSMContext):
     '''fad'''
-    await state.update_data({'stars': int(msg.text)})
+    await state.update_data({'star': int(msg.text)})
     
-    await msg.answer('Остался последний этап. Пришли несколько фотографий с места событий')
+    await msg.answer('Остался последний этап. Пришли несколько фотографий с места событий. (Как только ты скинешь фото бот будет думать примерно 10 сек так что не пугайся, он живой)')
     
     await state.set_state(Markers.photo)
     
 
 @router_marker.message(Markers.photo, F.media_group_id, F.content_type == ContentType.PHOTO)
 async def handle_album(message: Message, bot: Bot, state: FSMContext):
-    album_buffer[message.media_group_id].append(message)
-    await asyncio.sleep(2)  # немного ждём, чтобы все фото пришли
-    
+    media_group_id = message.media_group_id
+    album_buffer[media_group_id].append(message)
+
+    # Если уже обрабатывается — выходим
+    if album_processing_locks.get(media_group_id):
+        return
+
+    # Ставим флаг "обрабатывается"
+    album_processing_locks[media_group_id] = True
+
+    # Ждём немного, чтобы все фото успели прийти
+    await asyncio.sleep(10)
+
+    messages = album_buffer.pop(media_group_id, [])
+    album_processing_locks.pop(media_group_id, None)  # снимаем флаг
+
+    if not messages:
+        return
+
+    # Получаем данные из FSM
     data = await state.get_data()
     folder_name = data['name'].replace(' ', '_')
 
-    messages = album_buffer.pop(message.media_group_id, [])
-    if messages:
-        count = await save_album_photos(messages, folder_name, bot)
-        await message.answer(f"Фото загружены, подождите немного я добавлю все Ваши данные на карту")
+    count = await save_album_photos(messages, folder_name, bot)
+    await message.answer("Фото загружены, подождите немного, я добавлю все Ваши данные на карту")
+
+    links = await upload_all_images_from_folder(
+        f'../image/{folder_name}',
+        repo_name='for_image',
+        folder_in_repo=f'image/{folder_name}'
+    )
+
+    await asyncio.sleep(10)
+
+    data['photo'] = count
+
+    # Загружаем и сохраняем markers.json
+    df = pd.read_json('../data/markers.json')
+    df = pd.concat([df, pd.DataFrame([data])], ignore_index=True)
+    df.to_json('../data/markers.json', orient='records', indent=4, force_ascii=False)
     
+    await message.answer('Создаю карту с твоими данными....')
     
-    links = await upload_all_images_from_folder(f'../image/{folder_name}', repo_name='for_image', folder_in_repo=f'image/{folder_name}')
+    map_to_html('../data/yar_districts.json', '../data/markers.json', '../data/map.html')
     
-    await state.clear()
+    await message.reply_sticker('CAACAgIAAxkBAAKVRmf0zOU0lat_UAIqZfAiK0g31glYAALJbQACxKNIS6T3gguKQd5tNgQ')
+    
+    file = types.FSInputFile('../data/map.html')
+    await message.answer_document(file, caption='Вот ваша карта 📄')
+
+    await state.set_state(Markers.end)

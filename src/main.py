@@ -1,5 +1,6 @@
 '''Скачиваем aiogram'''
 
+import logging
 import asyncio
 import os
 
@@ -36,4 +37,8 @@ async def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO
+    )
+    
     asyncio.run(main())
