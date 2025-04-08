@@ -34,12 +34,13 @@ def add_markers_to_map(map_obj, data_path):
         ).add_to(map_obj)
         
         
-def create_url_for_photo(name, num):
+def create_url_for_photo(name: str, num: int):
     '''create url'''
     photos = []
     
     for i in range(1, num + 1):
-        photos.append(f'https://raw.githubusercontent.com/KopatychDisko/for_image/main/image/{name.replace(' ', '_')}/{i}.jpg')
+        name = name.replace(' ', '_')
+        photos.append(f'https://raw.githubusercontent.com/KopatychDisko/for_image/main/image/{name}/{i}.jpg')
         
     return photos
 
