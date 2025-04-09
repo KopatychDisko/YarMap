@@ -54,7 +54,7 @@ async def main():
    
     await set_command(bot=bot)
     
-    asyncio.create_task(scheduler())
+    await scheduler()
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
