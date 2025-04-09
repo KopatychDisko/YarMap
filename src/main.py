@@ -4,6 +4,11 @@ import logging
 import asyncio
 import os
 
+import threading
+import uvicorn
+
+from fastapi import FastAPI
+
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
@@ -15,6 +20,20 @@ from handler_marker import router_marker
 from command import set_command
 
 from dotenv import load_dotenv
+
+app = FastAPI()
+
+
+@app.get("/")
+def read_root():
+    '''Заглушка'''
+    return {"status": "работает"}
+
+
+def run_web_server():
+    '''Типо web service'''
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port)
 
 
 async def main():
@@ -37,8 +56,15 @@ async def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO
-    )
-    
-    asyncio.run(main())
+    try:
+        web_thread = threading.Thread(target=run_web_server, daemon=True)
+        web_thread.start()
+
+        logging.basicConfig(
+            level=logging.INFO
+        )
+        
+        asyncio.run(main())
+
+    except KeyboardInterrupt:
+        print("Завершение работы...")
