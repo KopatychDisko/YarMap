@@ -14,12 +14,15 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
+from dotenv import load_dotenv
+
 from handler_districts import router_districts
 from handler_marker import router_marker
 
 from command import set_command
 
-from dotenv import load_dotenv
+from self_ping import scheduler
+
 
 app = FastAPI()
 
@@ -50,6 +53,8 @@ async def main():
     dp.include_routers(router_districts, router_marker)
    
     await set_command(bot=bot)
+    
+    asyncio.create_task(scheduler())
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
