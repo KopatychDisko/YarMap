@@ -1,5 +1,3 @@
-'''fad'''
-
 import asyncio
 import aiohttp
 import aioschedule
@@ -19,7 +17,7 @@ async def ping_self():
 
 async def scheduler():
     '''Self ping every 5 min'''
-    aioschedule.every(5).minutes.do(ping_self)
+    aioschedule.every(5).minutes.do(lambda: asyncio.create_task(ping_self()))
     while True:
         await aioschedule.run_pending()
         await asyncio.sleep(1)
