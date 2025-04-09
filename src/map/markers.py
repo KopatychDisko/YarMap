@@ -25,7 +25,7 @@ def add_markers_to_map(map_obj, data_path):
             stars
         )
 
-        popup = folium.Popup(folium.Html(html_content, script=True), max_width=300)
+        popup = folium.Popup(folium.Html(html_content, script=True), max_width=150)
 
         folium.Marker(
             location=point,

@@ -12,12 +12,24 @@ from state import Admin
 from filter import ChatTypeFilter
 
 from map.map_creator import map_to_html
+from handler_marker import upload_html_to_github
 
 router_districts = Router()
 
 router_districts.message.filter(
     ChatTypeFilter(chat_type="private")
 )
+
+
+@router_districts.message(Command("give_map"))
+async def give_map(msg: Message):
+    '''Give us map url'''
+    map_to_html('../data/yar_districts.json', '../data/markers.json', '../data/index.html')
+    
+    upload_html_to_github('../data/index.html')
+    
+    await msg.answer('Вот Ваша карта:\nhttps://yar-available-environment.onrender.com')
+    
 
 @router_districts.message(Command("start"))
 async def start(msg: Message):
@@ -75,9 +87,17 @@ async def district(msg: Message, state: FSMContext):
 @router_districts.message(Admin.district)
 async def coord(msg: Message, state: FSMContext):
     '''fad'''
+    df = pd.read_json('../data/yar_districts.json')
+    
+    if msg.text not in df.index:
+        msg.answer('В данных нет такого района, попробуй другой')
+        return
+    
     await state.set_data({'name': msg.text})
-    await msg.answer('Вписывай координаты:')
+    await msg.answer('Вписывай координаты:', reply_markup=types.ReplyKeyboardRemove())
+    
     await state.set_state(Admin.coord)
+
 
 @router_districts.message(Admin.coord, F.text.lower() == 'все')
 async def end(msg: Message, state: FSMContext):
@@ -86,10 +106,11 @@ async def end(msg: Message, state: FSMContext):
     await msg.answer('Реально? Тогда сейчас скину карту')
     await state.clear()
     
-    map_to_html('../data/yar_districts.json', '../data/map.html')
+    map_to_html('../data/yar_districts.json', '../data/markers.json', '../data/index.html')
     
-    file = types.FSInputFile('../data/map.html')
-    await msg.answer_document(file, caption='Вот ваша карта 📄')
+    upload_html_to_github('../data/index.html')
+    
+    await msg.answer(f'Вот ваша карта: \nhttps://yar-available-environment.onrender.com')
     
 @router_districts.message(Admin.coord)
 async def data(msg: Message, state: FSMContext):

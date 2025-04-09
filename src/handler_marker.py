@@ -5,6 +5,7 @@ import os
 import asyncio
 import requests
 import base64
+import shutil
 
 import pandas as pd      
 
@@ -32,15 +33,72 @@ router_marker.message.filter(
 album_buffer = defaultdict(list)
 
 
-def delete_files_in_dir(path):
-    '''Del all files in dir'''
-    for filename in os.listdir(path):
-        file_path = os.path.join(path, filename)
- 
-        # Проверяем, является ли путь файлом (не папкой)
-        if os.path.isfile(file_path):
-            os.remove(file_path)
+def delete_all_in_directory(directory_path):
+    """
+    Удаляет все файлы и папки внутри указанной папки (не удаляя саму папку).
+    
+    :param directory_path: Путь к папке, внутри которой нужно удалить все.
+    """
+    # Проверяем, существует ли папка
+    if os.path.exists(directory_path):
+        # Проходим по всем объектам в папке
+        for item in os.listdir(directory_path):
+            item_path = os.path.join(directory_path, item)
+            if os.path.isdir(item_path):
+                # Если это папка, рекурсивно её удаляем
+                shutil.rmtree(item_path)
+            else:
+                # Если это файл, просто удаляем
+                os.remove(item_path)
+        print(f"✅ Все содержимое папки '{directory_path}' удалено.")
+    else:
+        print(f"❌ Папка {directory_path} не существует.")
 
+
+def upload_html_to_github(
+    html_path,
+    path_in_repo="index.html",  # Путь в репозитории (корень)
+    repo_name="Map",
+    repo_owner="KopatychDisko",
+    commit_message="Добавил index.html",
+    token='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'
+):
+    '''Загружает HTML-файл в GitHub-репозиторий (в корень репозитория)'''
+    with open(html_path, "rb") as html_file:
+        encoded_content = base64.b64encode(html_file.read()).decode("utf-8")
+
+    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{path_in_repo}"
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+
+    # Проверяем, существует ли файл (чтобы получить SHA)
+    get_response = requests.get(url, headers=headers)
+    
+    # Выводим ответ для диагностики
+    if get_response.status_code == 200:
+        print("Ответ GET запроса:", get_response.json())  # Это покажет, что именно возвращает GitHub
+        sha = get_response.json().get("sha") if isinstance(get_response.json(), dict) else None
+    else:
+        print(f"Ошибка при получении файла: {get_response.status_code}")
+        sha = None
+
+    data = {
+        "message": commit_message,
+        "content": encoded_content
+    }
+    if sha:
+        data["sha"] = sha  # добавляем SHA для обновления файла
+
+    response = requests.put(url, headers=headers, json=data)
+
+    if response.status_code in [200, 201]:
+        content_url = response.json()["content"]["download_url"]
+        print("✅ HTML-файл успешно загружен.")
+    else:
+        print(f"❌ Ошибка: {response.status_code}")
+        print(response.json())
 
 # 📁 Функция сохранения
 async def save_album_photos(messages: list[Message], folder_name: str, bot: Bot) -> int:
@@ -177,7 +235,7 @@ async def describe(msg: Message, state: FSMContext):
     '''fad'''
     await state.update_data({'describe': msg.text})
     
-    await msg.answer('Оцени обеъект по доступноти от 1 до 10. Просто введи целое число')
+    await msg.answer('Оцени обеъект по доступноти от 0 до 10. Просто введи целое число')
     
     await state.set_state(Markers.stars)
 
@@ -185,7 +243,19 @@ async def describe(msg: Message, state: FSMContext):
 @router_marker.message(Markers.stars)
 async def stars(msg: Message, state: FSMContext):
     '''fad'''
-    await state.update_data({'star': int(msg.text)})
+    maybe_star = msg.text
+    
+    if not maybe_star.isdigit():
+        await msg.answer('К сожалению Вы ввели не число. Попробуете еще!')
+        return
+    
+    maybe_star = int(maybe_star)
+    
+    if not (0 <= maybe_star <= 10):
+       await msg.answer('Решил проверить меня? Теперь повтори, но введи число от 0 до 10')
+       return
+    
+    await state.update_data({'star': int(maybe_star)})
     
     await msg.answer('Остался последний этап. Пришли несколько фотографий с места событий. (Как только ты скинешь фото бот будет думать примерно 10 сек так что не пугайся, он живой)')
     
@@ -237,13 +307,15 @@ async def handle_album(message: Message, bot: Bot, state: FSMContext):
 
     await message.answer('Создаю карту с твоими данными....')
 
-    map_to_html('../data/yar_districts.json', '../data/markers.json', '../data/map.html')
+    map_to_html('../data/yar_districts.json', '../data/markers.json', '../data/index.html')
 
     await message.reply_sticker('CAACAgIAAxkBAAKVRmf0zOU0lat_UAIqZfAiK0g31glYAALJbQACxKNIS6T3gguKQd5tNgQ')
+    
+    upload_html_to_github('../data/index.html')
+    
+    await message.answer(f'Вот ваша карта:\n https://yar-available-environment.onrender.com/')
 
-    file = types.FSInputFile('../data/map.html')
-    await message.answer_document(file, caption='Вот ваша карта 📄')
-
-    delete_files_in_dir('../image')
-
+    delete_all_in_directory('../image')
+    
     await state.clear()
+

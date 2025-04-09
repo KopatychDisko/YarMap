@@ -22,7 +22,7 @@ def create_map():
     ).add_to(map_obj)
 
     MiniMap().add_to(map_obj)
-    LocateControl(auto_start=True).add_to(map_obj)
+    LocateControl().add_to(map_obj)
     folium.FitOverlays().add_to(map_obj)
     folium.LayerControl().add_to(map_obj)
      
@@ -46,7 +46,7 @@ def add_districts(json_path, map_obj):
             color="blue",
             weight=6,
             fill_color="red",
-            fill_opacity=0.5,
+            fill_opacity=0.25,
             fill=True,
             popup=name,
             tooltip=name,
@@ -60,6 +60,24 @@ def map_to_html(path_district, path_markers, file_to_save):
     add_markers_to_map(yar_map, path_markers)
 
     yar_map.save(file_to_save)
+    
+    with open(file_to_save, 'r', encoding='utf-8') as file:
+        html_content = file.read()
+
+    # HTML-теги, которые добавим в <head>
+    meta_tags = """
+    <title>Карта доступной среды в Ярославле</title>
+    <link rel="icon" href="https://school30-norilsk.gosuslugi.ru/netcat_files/117/410/OVZ.jpg">
+    <meta name="description" content="Интерактивная карта доступности городской среды для людей с ограниченными возможностями в Ярославле.">
+    <meta name="keywords" content="Ярославль, доступная среда, карта, инвалидность, ОВЗ, урбанистика, доступность, инфраструктура">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    """
+
+    html_content = html_content.replace('<head>', f'<head>\n{meta_tags}')
+
+    # Перезаписываем файл с обновлённым содержанием
+    with open(file_to_save, 'w', encoding='utf-8') as file:
+        file.write(html_content)
 
 
 if __name__ == '__main__':
