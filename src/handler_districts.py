@@ -71,7 +71,7 @@ async def district(msg: Message, state: FSMContext):
 
     df = pd.read_json('../data/yar_districts.json')
 
-    kb = [[types.KeyboardButton(text=name)] for name in df.index]
+    kb = [[types.KeyboardButton(text=name)] for name in df.name]
 
     builder = types.ReplyKeyboardMarkup(
         keyboard=kb,
@@ -89,7 +89,7 @@ async def coord(msg: Message, state: FSMContext):
     '''fad'''
     df = pd.read_json('../data/yar_districts.json')
     
-    if msg.text not in df.index:
+    if msg.text not in df.name:
         msg.answer('В данных нет такого района, попробуй другой')
         return
     

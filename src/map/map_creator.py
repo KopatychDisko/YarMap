@@ -6,6 +6,7 @@ import pandas as pd
 from folium.plugins import MiniMap, LocateControl, Fullscreen
 
 from map.markers import add_markers_to_map
+from map.colors_districts import give_colors_districts
 
 
 def create_map():
@@ -40,22 +41,23 @@ def add_districts(json_path, map_obj):
     '''Add bound of district Yaroslavl'''
     
     df = pd.read_json(json_path)
-    for name in df.index:
+    for i, row in df.iterrows():
         folium.Polygon(
-            locations=df.loc[name, 'geometry'],
-            color="blue",
+            locations=row['geometry'],
+            color=row['color'],
             weight=6,
-            fill_color="red",
-            fill_opacity=0.25,
+            fill_color=row['color'],
+            fill_opacity=0.35,
             fill=True,
-            popup=name,
-            tooltip=name,
+            popup=row['name'],
+            tooltip=row['name'],
         ).add_to(map_obj)
         
 
 def map_to_html(path_district, path_markers, file_to_save):
     '''Do all'''
     yar_map = create_map()
+    give_colors_districts(path_district, path_markers)
     add_districts(path_district, yar_map)
     add_markers_to_map(yar_map, path_markers)
 
