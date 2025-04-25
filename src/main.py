@@ -16,6 +16,9 @@ from handler_marker import router_marker
 
 from command import set_command
 
+from keep_alive import keep_alive
+keep_alive()
+
 
 async def main():
     '''Main func'''

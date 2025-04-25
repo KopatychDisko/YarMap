@@ -71,7 +71,7 @@ async def district(msg: Message, state: FSMContext):
 
     df = pd.read_json('../data/yar_districts.json')
 
-    kb = [[types.KeyboardButton(text=name)] for name in df.name]
+    kb = [[types.KeyboardButton(text=name)] for name in df['name']]
 
     builder = types.ReplyKeyboardMarkup(
         keyboard=kb,
@@ -89,8 +89,8 @@ async def coord(msg: Message, state: FSMContext):
     '''fad'''
     df = pd.read_json('../data/yar_districts.json')
     
-    if msg.text not in df.name:
-        msg.answer('В данных нет такого района, попробуй другой')
+    if msg.text not in df['name'].values:
+        await msg.answer('В данных нет такого района, попробуй другой')
         return
     
     await state.set_data({'name': msg.text})
@@ -111,6 +111,7 @@ async def end(msg: Message, state: FSMContext):
     upload_html_to_github('../data/index.html')
     
     await msg.answer(f'Вот ваша карта: \nhttps://yar-available-environment.onrender.com')
+
     
 @router_districts.message(Admin.coord)
 async def data(msg: Message, state: FSMContext):
@@ -121,14 +122,16 @@ async def data(msg: Message, state: FSMContext):
     
     coord = [[float(coord) for coord in point.split(', ')] for point in msg.text.splitlines()]
     
-    if len(df.loc[data['name'], 'geometry'][0]) == 5:
-        df.loc[data['name'], 'geometry'] = [[[]]]
+    row_idx = df[df['name'] == data['name']].index[0]
+
+    if len(df.at[row_idx, 'geometry'][0]) == 5:
+        df.at[row_idx, 'geometry'] = [[[]]]
     
-    df.loc[data['name'], 'geometry'][0].extend(coord)
+    df.at[row_idx, 'geometry'][0].extend(coord)
     
-    if len(df.loc[data['name'], 'geometry'][0][0]) != 2:
-        df.loc[data['name'], 'geometry'][0].pop(0)
+    if len(df.at[row_idx, 'geometry'][0][0]) != 2:
+        df.at[row_idx, 'geometry'][0].pop(0)
     
-    df.to_json('../data/yar_districts.json')
+    df.to_json('../data/yar_districts.json', orient='records', indent=4, force_ascii=False)
     
     await msg.answer('Записал! Если больше нет, напиши все, иначе просто шли еще')

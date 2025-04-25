@@ -3,13 +3,17 @@
 import folium
 import pandas as pd
 
+from folium.plugins import MarkerCluster, Search
+
 
 def add_markers_to_map(map_obj, data_path):
     '''Добавление маркеров на карту из файла'''
     
     df = pd.read_json(data_path)
+      
+    markers_cluster = MarkerCluster(name='Метки').add_to(map_obj)
 
-    for index, row in df.iterrows():
+    for _, row in df.iterrows():
         point = row['point']  # Это список вида [широта, долгота]
         rating = row['star']
         name = row['name']
@@ -28,12 +32,24 @@ def add_markers_to_map(map_obj, data_path):
         popup = folium.Popup(folium.Html(html_content, script=True), max_width=150)
 
         folium.Marker(
+            name=name,
             location=point,
             popup=popup,
             tooltip=name
-        ).add_to(map_obj)
+        ).add_to(markers_cluster)
         
+    Search(
+        layer=markers_cluster,
+        search_label='name',
+        placeholder='Поиск объектов',
+        collapsed=False,
+        geom_type="Point",
+        position='topright',
+        search_zoom=17,
+        search_kwargs={'animateZoom': True, 'autoCollapse': True, 'highlight': False}
+    ).add_to(map_obj)
         
+
 def create_url_for_photo(name: str, num: int):
     '''create url'''
     photos = []

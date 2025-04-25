@@ -1,9 +1,11 @@
 '''Lib for map'''
 
+from os import name
 import folium
 import pandas as pd
 
-from folium.plugins import MiniMap, LocateControl, Fullscreen
+from folium.plugins import MiniMap, LocateControl
+from folium import FeatureGroup, LayerControl
 
 from map.markers import add_markers_to_map
 from map.colors_districts import give_colors_districts
@@ -13,19 +15,22 @@ def create_map():
     '''Create map with some function'''
 
     center = [57.6261, 39.8845]
-    map_obj = folium.Map(location=center, zoom_start=12, attributionControl=0)
-
-    Fullscreen(
-        position="topright",
-        title="Expand me",
-        title_cancel="Exit me",
-        force_separate_button=True,
+    map_obj = folium.Map(location=center, zoom_start=11, attributionControl=0, tiles=None)
+    
+    folium.TileLayer(
+    'Esri.WorldImagery',  # Это слой спутниковых изображений от ESRI
+    name='Спутник',
+    attr='&copy; <a href="https://www.esri.com">Esri</a>'
+    ).add_to(map_obj)
+    
+    folium.TileLayer(
+    'OpenStreetMap',
+    name='Схема',
     ).add_to(map_obj)
 
     MiniMap().add_to(map_obj)
     LocateControl().add_to(map_obj)
     folium.FitOverlays().add_to(map_obj)
-    folium.LayerControl().add_to(map_obj)
      
     # Подключаем Lightbox2
     lightbox_css = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightbox2@2.11.3/dist/css/lightbox.min.css">'
@@ -41,6 +46,8 @@ def add_districts(json_path, map_obj):
     '''Add bound of district Yaroslavl'''
     
     df = pd.read_json(json_path)
+    district_group = FeatureGroup(name='Районы')
+    
     for i, row in df.iterrows():
         folium.Polygon(
             locations=row['geometry'],
@@ -51,8 +58,9 @@ def add_districts(json_path, map_obj):
             fill=True,
             popup=row['name'],
             tooltip=row['name'],
-        ).add_to(map_obj)
+        ).add_to(district_group)
         
+    district_group.add_to(map_obj)
 
 def map_to_html(path_district, path_markers, file_to_save):
     '''Do all'''
@@ -60,6 +68,8 @@ def map_to_html(path_district, path_markers, file_to_save):
     give_colors_districts(path_district, path_markers)
     add_districts(path_district, yar_map)
     add_markers_to_map(yar_map, path_markers)
+    
+    LayerControl().add_to(yar_map)
 
     yar_map.save(file_to_save)
     
@@ -75,8 +85,15 @@ def map_to_html(path_district, path_markers, file_to_save):
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     """
 
-    html_content = html_content.replace('<head>', f'<head>\n{meta_tags}')
-
+    html_content = html_content.replace('<head>', f'<head>\n{meta_tags}').replace('</head>', """
+<style>
+    .leaflet-interactive:focus {
+        outline: none !important;
+    }
+</style>
+</head>
+""")   
+    
     # Перезаписываем файл с обновлённым содержанием
     with open(file_to_save, 'w', encoding='utf-8') as file:
         file.write(html_content)
