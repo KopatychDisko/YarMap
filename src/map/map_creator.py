@@ -54,10 +54,9 @@ def add_districts(json_path, map_obj):
             color=row['color'],
             weight=6,
             fill_color=row['color'],
-            fill_opacity=0.35,
+            fill_opacity=0.4,
             fill=True,
-            popup=row['name'],
-            tooltip=row['name'],
+            popup=row['name']
         ).add_to(district_group)
         
     district_group.add_to(map_obj)
@@ -79,7 +78,7 @@ def map_to_html(path_district, path_markers, file_to_save):
     # HTML-теги, которые добавим в <head>
     meta_tags = """
     <title>Карта доступной среды в Ярославле</title>
-    <link rel="icon" href="https://school30-norilsk.gosuslugi.ru/netcat_files/117/410/OVZ.jpg">
+    <link rel="icon" href="favicon.ico">
     <meta name="description" content="Интерактивная карта доступности городской среды для людей с ограниченными возможностями в Ярославле.">
     <meta name="keywords" content="Ярославль, доступная среда, карта, инвалидность, ОВЗ, урбанистика, доступность, инфраструктура">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
