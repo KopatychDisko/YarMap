@@ -6,6 +6,7 @@ import asyncio
 import requests
 import base64
 import shutil
+import shortuuid
 
 import pandas as pd      
 
@@ -21,6 +22,12 @@ from filter import ChatTypeFilter
 from state import Markers
 
 from map.map_creator import map_to_html
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+TOKEN = os.getenv('TOKEN')
 
 album_buffer = defaultdict(list)
 album_processing_locks = {}
@@ -62,7 +69,7 @@ def upload_html_to_github(
     repo_name="Map",
     repo_owner="KopatychDisko",
     commit_message="Добавил index.html",
-    token='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'
+    token=TOKEN
 ):
     '''Загружает HTML-файл в GitHub-репозиторий (в корень репозитория)'''
     with open(html_path, "rb") as html_file:
@@ -110,6 +117,7 @@ async def save_album_photos(messages: list[Message], folder_name: str, bot: Bot)
     # Создаём папку ../image/folder_name
     base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'image'))
     target_folder = os.path.join(base_path, folder_name)
+    
     os.makedirs(target_folder, exist_ok=True)
 
     for i, msg in enumerate(messages, start=1):
@@ -121,7 +129,7 @@ async def save_album_photos(messages: list[Message], folder_name: str, bot: Bot)
     return len(messages)
 
 
-async def upload_image_to_github(image_path, path_in_repo, repo_name="for_image", repo_owner="KopatychDisko", commit_message="Добавил фото", token='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'):
+async def upload_image_to_github(image_path, path_in_repo, repo_name="for_image", repo_owner="KopatychDisko", commit_message="Добавил фото", token=TOKEN):
     '''upload image to github'''
     with open(image_path, "rb") as image_file:
         encoded_content = base64.b64encode(image_file.read()).decode("utf-8")
@@ -149,7 +157,7 @@ async def upload_image_to_github(image_path, path_in_repo, repo_name="for_image"
     
 
 # 🔄 Загружаем все фото из папки
-async def upload_all_images_from_folder(folder_path, folder_in_repo="uploads", repo_name="for_image", repo_owner="KopatychDisko", token='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'):
+async def upload_all_images_from_folder(folder_path, folder_in_repo, repo_name="for_image", repo_owner="KopatychDisko", token=TOKEN):
     links = []
 
     if not os.path.exists(folder_path):
@@ -226,7 +234,18 @@ async def name(msg: Message, state: FSMContext):
 async def addres(msg: Message, state: FSMContext):
     await state.update_data({'addres': msg.text})
     
-    await msg.answer('Супер! Дай краткое описание объекта. (Описать нужно его доступность)')
+    await msg.answer('''Супер! Дай краткое описание объекта. (Описать нужно его доступность)
+                     
+    Шаблон сообщения:
+    Пандус: ❌
+    Шрифт Брайля: ✅
+    Наземные тактильные указатели: ❌
+    Информация о доступности объекта: ❌
+    Кнопки вызова персонала: ✅
+    Лифт: ✅
+    Метки на лестнице: ❌
+    Туалет для инвалидов: ✅
+    Дополнительно: вход ровный, пандус ненужен, шрифт Брайля на кнопках внутри лифта''')
     
     await state.set_state(Markers.describe)
     
@@ -283,10 +302,12 @@ async def handle_album(message: Message, bot: Bot, state: FSMContext):
 
     if not messages:
         return
+    
+    await state.update_data({'id': shortuuid.uuid()})
 
     # Получаем данные из FSM
     data = await state.get_data()
-    folder_name = data['name'].replace(' ', '_')
+    folder_name = data['id']
 
     count = await save_album_photos(messages, folder_name, bot)
     await message.answer("Фото загружены, подождите немного, я добавлю все Ваши данные на карту")

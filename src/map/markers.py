@@ -17,7 +17,7 @@ def add_markers_to_map(map_obj, data_path):
         point = row['point']  # Это список вида [широта, долгота]
         rating = row['star']
         name = row['name']
-        photos = create_url_for_photo(name, row['photo'])
+        photos = create_url_for_photo(row['id'], row['photo'])
         stars = '★' * rating + '☆' * (10 - rating)
 
         html_content = create_html(
@@ -29,7 +29,7 @@ def add_markers_to_map(map_obj, data_path):
             stars
         )
 
-        popup = folium.Popup(folium.Html(html_content, script=True), max_width=150)
+        popup = folium.Popup(folium.Html(html_content, script=True), max_width=300)
 
         folium.Marker(
             name=name,
@@ -50,13 +50,12 @@ def add_markers_to_map(map_obj, data_path):
     ).add_to(map_obj)
         
 
-def create_url_for_photo(name: str, num: int):
+def create_url_for_photo(id: str, num: int):
     '''create url'''
     photos = []
     
     for i in range(1, num + 1):
-        name = name.replace(' ', '_')
-        photos.append(f'https://raw.githubusercontent.com/KopatychDisko/for_image/main/image/{name}/{i}.jpg')
+        photos.append(f'https://raw.githubusercontent.com/KopatychDisko/for_image/main/image/{id}/{i}.jpg')
         
     return photos
 

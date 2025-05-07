@@ -5,7 +5,7 @@ import os
 
 load_dotenv()
 
-TOKEN = os.getenv('GITHUB_TOKEN')
+TOKEN = os.getenv('TOKEN')
 
 def push_to_github_repo(
     repo_path: str,
@@ -13,7 +13,7 @@ def push_to_github_repo(
     github_token: str = TOKEN,
     repo_name: str = 'YarMap',
     branch: str = "master",
-    commit_message: str = "Автоматический коммит из Python"
+    commit_message: str = "Добавили метки"
 ):
     """
     Выполняет git add, commit и push в приватный GitHub-репозиторий через токен.
@@ -35,7 +35,7 @@ def push_to_github_repo(
         origin.set_url(remote_url)
 
         # Добавляем изменения и коммитим
-        repo.git.add('data')
+        repo.git.add('data/')
         if repo.is_dirty():
             repo.index.commit(commit_message)
             print("✅ Изменения закоммичены.")

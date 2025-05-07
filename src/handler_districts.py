@@ -29,7 +29,7 @@ async def give_map(msg: Message):
     map_to_html('../data/yar_districts.json', '../data/markers.json', '../data/index.html')
     
     upload_html_to_github('../data/index.html')
-    push_to_github_repo(repo_path='../')
+    push_to_github_repo(repo_path='../../YARMAP')
      
     await msg.answer('Вот Ваша карта:\nhttps://yar-available-environment.onrender.com')
     
