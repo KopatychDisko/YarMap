@@ -34,46 +34,6 @@ router_marker.message.filter(
 # Буфер для альбомов (media groups)
 album_buffer = defaultdict(list)
 
-
-def push_to_github_with_token(
-    repo_path: str = '../',
-    github_username: str = 'KopatychDisko',
-    repo_name: str = 'YarMap',
-    commit_message: str = "Auto commit",
-    branch: str = "master"
-):
-    # Токен из переменной окружения (безопасно)
-    github_token = os.getenv("GITHUB_TOKEN")
-    if not github_token:
-        raise ValueError("❌ GITHUB_TOKEN не найден в переменных окружения")
-
-    try:
-        # Открываем репозиторий
-        repo = Repo(repo_path)
-
-        # Добавляем и коммитим изменения
-        repo.git.add(A=True)
-        if repo.is_dirty():
-            repo.index.commit(commit_message)
-
-        # Формируем HTTPS URL с токеном
-        remote_url = f"https://{github_token}@github.com/{github_username}/{repo_name}.git"
-
-        # Устанавливаем origin
-        if "origin" not in [r.name for r in repo.remotes]:
-            origin = repo.create_remote("origin", remote_url)
-        else:
-            origin = repo.remote("origin")
-            origin.set_url(remote_url)
-
-        # Пушим на GitHub
-        origin.push(refspec=f"{branch}:{branch}")
-        print("✅ Пуш успешно завершён.")
-
-    except Exception as e:
-        print(f"❌ Ошибка при пуше: {e}")
-
-
 def delete_all_in_directory(directory_path):
     """
     Удаляет все файлы и папки внутри указанной папки (не удаляя саму папку).

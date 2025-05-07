@@ -11,8 +11,10 @@ from state import Admin
 
 from filter import ChatTypeFilter
 
+from push_git import push_to_github_repo
+
 from map.map_creator import map_to_html
-from handler_marker import upload_html_to_github, push_to_github_with_token
+from handler_marker import upload_html_to_github
 
 router_districts = Router()
 
@@ -27,9 +29,8 @@ async def give_map(msg: Message):
     map_to_html('../data/yar_districts.json', '../data/markers.json', '../data/index.html')
     
     upload_html_to_github('../data/index.html')
-    
-    push_to_github_with_token()
-    
+    push_to_github_repo(repo_path='../')
+     
     await msg.answer('Вот Ваша карта:\nhttps://yar-available-environment.onrender.com')
     
 
