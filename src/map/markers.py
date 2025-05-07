@@ -29,7 +29,7 @@ def add_markers_to_map(map_obj, data_path):
             stars
         )
 
-        popup = folium.Popup(folium.Html(html_content, script=True), max_width=300)
+        popup = folium.Popup(folium.Html(html_content, script=True), max_width=150)
 
         folium.Marker(
             name=name,
@@ -70,13 +70,15 @@ def create_html(photos, name, address, description, rating, stars):
                 <img src="{photo}" width="60" height="60" style="object-fit:cover; margin:2px; border-radius:5px;" />
             </a>
         '''
+    
+    p_description = ''.join(['<p>' + word + '</p>' for word in description.split('\n')])
 
     # Основной HTML контент
     html_content = f"""
         <div>
             <h4>{name}</h4>
             <p><b>📍 Адрес:</b> {address}</p>
-            <p>{description}</p>
+            {p_description}
             <p><b>Оценка:</b> {rating}/10 <span style="color:gold; font-size:1.2em;">{stars}</span></p>
             <div style="display:flex; flex-wrap:wrap;">{photo_html}</div>
         </div>
